@@ -4,6 +4,8 @@ import org.jcodec.api.FrameGrab;
 import org.jcodec.api.JCodecException;
 import org.jcodec.common.io.ByteBufferSeekableByteChannel;
 import org.jcodec.common.io.SeekableByteChannel;
+import org.jcodec.common.model.Picture;
+import org.jcodec.common.model.Size;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -17,6 +19,18 @@ public class Video {
 
     private Video(FrameGrab frameGrab) {
         this.frameGrab = frameGrab;
+    }
+
+    public void forceResolution(Size resolution) {
+        frameGrab.getMediaInfo().setDim(resolution);
+    }
+
+    public Size getResolution() {
+        return frameGrab.getMediaInfo().getDim();
+    }
+
+    public Picture getFrameAt(int index) throws IOException, JCodecException {
+        return frameGrab.seekToFramePrecise(index).getNativeFrame();
     }
 
     public static Video create(File file) throws IOException, JCodecException {
