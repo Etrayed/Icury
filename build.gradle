@@ -1,0 +1,21 @@
+plugins {
+    id 'java'
+}
+
+group 'io.github.etrayed'
+version 'INDEV'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+
+    compile group: 'org.spigotmc', name: 'spigot', version: '1.8.8-R0.1-SNAPSHOT'
+    compile group: 'org.jcodec', name: 'jcodec', version: '0.2.5'
+    compile group: 'org.jcodec', name: 'jcodec-javase', version: '0.2.5'
+}
