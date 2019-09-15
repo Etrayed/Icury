@@ -1,0 +1,4 @@
+name: Icury
+version: INDEV
+main: io.github.etrayed.icury.IcuryPlugin
+author: Etrayed

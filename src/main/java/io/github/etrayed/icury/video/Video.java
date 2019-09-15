@@ -25,12 +25,16 @@ public class Video {
         frameGrab.getMediaInfo().setDim(resolution);
     }
 
+    public Picture getFrameAt(int index) throws IOException, JCodecException {
+        return frameGrab.seekToFramePrecise(index).getNativeFrame();
+    }
+
     public Size getResolution() {
         return frameGrab.getMediaInfo().getDim();
     }
 
-    public Picture getFrameAt(int index) throws IOException, JCodecException {
-        return frameGrab.seekToFramePrecise(index).getNativeFrame();
+    public int getTotalFrames() {
+        return frameGrab.getVideoTrack().getMeta().getTotalFrames();
     }
 
     public static Video create(File file) throws IOException, JCodecException {

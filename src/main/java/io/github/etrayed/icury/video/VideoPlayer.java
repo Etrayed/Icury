@@ -18,8 +18,6 @@ public class VideoPlayer {
 
     private final Video video;
 
-    private final Canvas canvas;
-
     private BukkitTask frameTicker;
 
     private int frameIndex;
@@ -28,12 +26,11 @@ public class VideoPlayer {
 
     private VideoPlayer(Video video, Canvas canvas) {
         this.video = video;
-        this.canvas = canvas;
 
-        setupMapViews();
+        setupMapViews(canvas);
     }
 
-    private void setupMapViews() {
+    private void setupMapViews(Canvas canvas) {
         video.forceResolution(new Size(canvas.frames.length * 128, canvas.frames[0].length * 128));
 
         for (int x = 0; x < canvas.frames.length; x++) {
@@ -45,7 +42,7 @@ public class VideoPlayer {
     }
 
     public void play() {
-        frameTicker = Bukkit.getScheduler().runTaskTimer(JavaPlugin.getPlugin(IcuryPlugin.class), new Runnable() {
+        this.frameTicker = Bukkit.getScheduler().runTaskTimer(JavaPlugin.getPlugin(IcuryPlugin.class), new Runnable() {
 
             @Override
             public void run() {
@@ -54,6 +51,10 @@ public class VideoPlayer {
                 }
 
                 frameIndex++;
+
+                if(frameIndex++ > video.getTotalFrames()) {
+                    stop();
+                }
             }
         }, 1, 1);
     }
@@ -79,7 +80,7 @@ public class VideoPlayer {
         return paused;
     }
 
-    boolean isStopped() {
+    public boolean isStopped() {
         return stopped;
     }
 
