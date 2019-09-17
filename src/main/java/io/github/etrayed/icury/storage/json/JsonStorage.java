@@ -51,6 +51,10 @@ public class JsonStorage implements Storage<JsonBuffer> {
     public void store(String key, JsonBuffer jsonBuffer) {
         buffer.put(key, jsonBuffer);
 
+        save();
+    }
+
+    private void save() {
         try(BufferedWriter writer = Files.newBufferedWriter(STORAGE_FILE_PATH)) {
             JsonObject jsonObject = new JsonObject();
 
@@ -75,7 +79,11 @@ public class JsonStorage implements Storage<JsonBuffer> {
 
     @Override
     public JsonBuffer delete(String key) {
-        return buffer.remove(key);
+        JsonBuffer jsonBuffer = buffer.remove(key);
+
+        save();
+
+        return jsonBuffer;
     }
 
     @Override

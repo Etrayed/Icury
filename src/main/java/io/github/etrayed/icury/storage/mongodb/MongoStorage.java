@@ -1,13 +1,16 @@
 package io.github.etrayed.icury.storage.mongodb;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 
+import io.github.etrayed.icury.Icury;
 import io.github.etrayed.icury.storage.Storage;
 import io.github.etrayed.icury.storage.StorageType;
 
+import io.github.etrayed.icury.util.ConfigurationInterpreter;
 import org.bson.Document;
 
 import java.io.Closeable;
@@ -26,15 +29,22 @@ public class MongoStorage implements Storage<MongoBuffer> {
 
     @Override
     public void load() {
-        this.closeable = new MongoClient(null, 0);
+        ConfigurationInterpreter.DatabaseCredentials credentials
+                = Icury.getConfigurationInterpreter().getDatabaseCredentials();
 
-        MongoDatabase database = ((MongoClient) closeable).getDatabase(null);
-
-        if(!database.listCollectionNames().into(new ArrayList<>()).contains("IcuryStorages")) {
-            database.createCollection("IcuryStorages");
+        if(credentials.customUrl.isEmpty()) {
+            this.closeable = new MongoClient(credentials.hostname, credentials.port);
+        } else {
+            this.closeable = new MongoClient(new MongoClientURI(credentials.customUrl));
         }
 
-        this.collection = database.getCollection("IcuryStorages");
+        MongoDatabase database = ((MongoClient) closeable).getDatabase(credentials.databaseName);
+
+        if(!database.listCollectionNames().into(new ArrayList<>()).contains("IcuryStorage")) {
+            database.createCollection("IcuryStorage");
+        }
+
+        this.collection = database.getCollection("IcuryStorage");
     }
 
     @Override

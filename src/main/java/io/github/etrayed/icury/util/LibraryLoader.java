@@ -1,5 +1,7 @@
 package io.github.etrayed.icury.util;
 
+import io.github.etrayed.icury.Icury;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -41,24 +43,41 @@ public class LibraryLoader {
     }
 
     public static void loadAll() {
+        Icury.getLogger().info("Loading dependencies...");
+
+        long fullTimestamp = System.currentTimeMillis();
+
         for (Dependency dependency : DEPENDENCIES) {
             try {
                 if(Files.notExists(dependency.path)) {
+                    Icury.getLogger().info("Downloading " + dependency.mavenRepositoryURL);
+
+                    long timestamp = System.currentTimeMillis();
+
                     InputStream inputStream = dependency.mavenRepositoryURL.openStream();
 
                     Files.copy(inputStream, dependency.path);
 
                     inputStream.close();
+
+                    Icury.getLogger().info("Finished download. Took " + (System.currentTimeMillis() - timestamp) + "ms.");
                 }
 
                 ADD_URL_METHOD.invoke(ClassLoader.getSystemClassLoader(), dependency.path.toUri().toURL());
+
+                Icury.getLogger().info("Loaded library " + dependency.toString() + " into runtime.");
             } catch (IllegalAccessException | InvocationTargetException | IOException e) {
                 e.printStackTrace();
             }
         }
+
+        Icury.getLogger().info(DEPENDENCIES.length + " dependencies loaded successfully. Took "
+                + (System.currentTimeMillis() - fullTimestamp) + "ms.");
     }
 
     private static final class Dependency {
+
+        private final String string;
 
         private final URL mavenRepositoryURL;
 
@@ -66,13 +85,20 @@ public class LibraryLoader {
 
         private Dependency(String groupId, String artifactId, String version) {
             try {
-                this.mavenRepositoryURL =  new URL("http://repo.maven.apache.org/maven2/" + groupId.replace("\\.",
-                        "/") + "/" + version + "/" + artifactId + "-" + version + ".jar");
+                this.string = groupId + ":" + artifactId + ":" + version;
+
+                this.mavenRepositoryURL =  new URL("http://repo.maven.apache.org/maven2/" + groupId.replaceAll("\\.",
+                        "/") + "/" + artifactId + "/" + version + "/" + artifactId + "-" + version + ".jar");
 
                 this.path = Paths.get("plugins/Icury/lib/" + artifactId + "-" + version + ".jar");
             } catch (MalformedURLException e) {
                 throw new InternalError(e);
             }
+        }
+
+        @Override
+        public String toString() {
+            return string;
         }
     }
 }

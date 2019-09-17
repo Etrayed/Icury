@@ -41,6 +41,8 @@ public interface StorageBuffer<R> {
 
     <T extends Enum<T>> void writeEnum(String key, Enum<T> value);
 
+    void remove(String key);
+
     R raw();
 
     <T extends StorageBuffer> T convertTo(Class<T> bufferClass);

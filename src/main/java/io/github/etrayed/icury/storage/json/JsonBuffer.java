@@ -118,6 +118,11 @@ public class JsonBuffer implements StorageBuffer<JsonObject> {
     }
 
     @Override
+    public void remove(String key) {
+        instance.remove(key);
+    }
+
+    @Override
     public JsonObject raw() {
         return instance;
     }

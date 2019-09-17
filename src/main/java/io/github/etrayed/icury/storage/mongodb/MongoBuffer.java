@@ -40,32 +40,32 @@ public class MongoBuffer implements StorageBuffer<Document> {
 
     @Override
     public byte getByte(String key) {
-        return instance.get(key, Byte.class);
+        return ((Number) instance.get(key)).byteValue();
     }
 
     @Override
     public short getShort(String key) {
-        return instance.get(key, Short.class);
+        return ((Number) instance.get(key)).shortValue();
     }
 
     @Override
     public int getInt(String key) {
-        return instance.get(key, Integer.class);
+        return ((Number) instance.get(key)).intValue();
     }
 
     @Override
     public long getLong(String key) {
-        return instance.get(key, Long.class);
+        return ((Number) instance.get(key)).longValue();
     }
 
     @Override
     public double getDouble(String key) {
-        return instance.get(key, Double.class);
+        return ((Number) instance.get(key)).doubleValue();
     }
 
     @Override
     public float getFloat(String key) {
-        return instance.get(key, Float.class);
+        return ((Number) instance.get(key)).floatValue();
     }
 
     @Override
@@ -116,6 +116,11 @@ public class MongoBuffer implements StorageBuffer<Document> {
     @Override
     public <T extends Enum<T>> void writeEnum(String key, Enum<T> value) {
         instance.put(key, value.name());
+    }
+
+    @Override
+    public void remove(String key) {
+        instance.remove(key);
     }
 
     @Override

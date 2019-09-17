@@ -50,8 +50,6 @@ public class VideoPlayer {
                     return;
                 }
 
-                frameIndex++;
-
                 if(frameIndex++ > video.getTotalFrames()) {
                     stop();
                 }
