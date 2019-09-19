@@ -23,7 +23,8 @@ public class LibraryLoader {
             new Dependency("org.jcodec", "jcodec-javase", "0.2.5"),
             new Dependency("org.mongodb", "mongo-java-driver", "3.11.0"),
             new Dependency("com.j256.ormlite", "ormlite-core", "5.1"),
-            new Dependency("com.j256.ormlite", "ormlite-jdbc", "5.1")
+            new Dependency("com.j256.ormlite", "ormlite-jdbc", "5.1"),
+            new Dependency("com.sun.xml.fastinfoset", "FastInfoset", "1.2.16")
     };
 
     private static final Method ADD_URL_METHOD;

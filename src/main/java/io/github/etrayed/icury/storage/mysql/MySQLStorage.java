@@ -1,5 +1,8 @@
 package io.github.etrayed.icury.storage.mysql;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.j256.ormlite.dao.BaseDaoImpl;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
@@ -15,7 +18,6 @@ import io.github.etrayed.icury.util.ConfigurationInterpreter;
 import javax.persistence.Column;
 import java.io.Closeable;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,13 +40,26 @@ public class MySQLStorage implements Storage<MySQLBuffer> {
             ConfigurationInterpreter.DatabaseCredentials credentials
                     = Icury.getConfigurationInterpreter().getDatabaseCredentials();
 
+            Icury.getLogger().info("Connecting to MySQL Database...");
+
+            long timestamp = System.currentTimeMillis();
+
             if(credentials.customUrl.isEmpty()) {
+                Icury.getLogger().info("Using \"databaseCredentials\".");
+
                 this.connectionSource = new JdbcConnectionSource("jdbc:mysql://" + credentials.hostname + ":"
                         + credentials.port + "/" + credentials.databaseName + "?autoReconnect=true",
                         credentials.username, credentials.password);
             } else {
+                Icury.getLogger().info("Using \"customUrl\".");
+
                 this.connectionSource = new JdbcConnectionSource(credentials.customUrl);
             }
+
+            Icury.getLogger().info("Connection established! Took " + (System.currentTimeMillis() - timestamp)
+                    + "ms. Full log can be found in \"plugins/Icury/sqlActions.log\".");
+
+            Icury.getLogger().info("Creating table \"IcuryStorage\" if it not already exists.");
 
             TableUtils.createTableIfNotExists((ConnectionSource) connectionSource, BufferRepresentation.class);
 
@@ -57,7 +72,7 @@ public class MySQLStorage implements Storage<MySQLBuffer> {
     @Override
     public void store(String key, MySQLBuffer mySQLBuffer) {
         try {
-            dataAccessObject.create(new BufferRepresentation(key, BufferSerializer.serialize(mySQLBuffer)));
+            dataAccessObject.createIfNotExists(new BufferRepresentation(key, BufferSerializer.serialize(mySQLBuffer)));
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -111,6 +126,8 @@ public class MySQLStorage implements Storage<MySQLBuffer> {
     public void close() throws IOException {
         if(connectionSource != null) {
             connectionSource.close();
+
+            Icury.getLogger().info("Closed database connection.");
         }
     }
 
@@ -132,9 +149,9 @@ public class MySQLStorage implements Storage<MySQLBuffer> {
         }
     }
 
-    private static final class StorageDataAccessObject extends BaseDaoImpl<BufferRepresentation, String> {
+    public static final class StorageDataAccessObject extends BaseDaoImpl<BufferRepresentation, String> {
 
-        private StorageDataAccessObject(ConnectionSource connectionSource) throws SQLException {
+        public StorageDataAccessObject(ConnectionSource connectionSource) throws SQLException {
             super(connectionSource, BufferRepresentation.class);
         }
     }
@@ -142,75 +159,45 @@ public class MySQLStorage implements Storage<MySQLBuffer> {
     private static final class BufferSerializer {
 
         private static String serialize(MySQLBuffer buffer) {
-            StringBuilder serializeBuilder = new StringBuilder();
+            JsonObject baseObject = new JsonObject();
 
             buffer.raw().forEach(new BiConsumer<String, Object>() {
 
                 @Override
                 public void accept(String key, Object value) {
-                    serializeBuilder.append('|').append(key).append('_').append(objectToType(value)).append(':');
-
-                    appendByteArray(serializeBuilder, value.toString().getBytes(StandardCharsets.UTF_8));
+                    if(value instanceof Number) {
+                        baseObject.addProperty(key, (Number) value);
+                    } else if(value instanceof Boolean) {
+                        baseObject.addProperty(key, (boolean) value);
+                    } else {
+                        baseObject.addProperty(key, value.toString());
+                    }
                 }
             });
 
-            if(serializeBuilder.length() > 0) {
-                serializeBuilder.deleteCharAt(0);
-            }
-
-            return new String(serializeBuilder);
-        }
-
-        private static void appendByteArray(StringBuilder stringBuilder, byte[] array) {
-            for (byte b : array) {
-                stringBuilder.append(',');
-                stringBuilder.append(b);
-            }
-
-            if(stringBuilder.length() > 0) {
-                stringBuilder.deleteCharAt(0);
-            }
+            return baseObject.toString();
         }
 
         private static MySQLBuffer deserialize(String data) {
             Map<String, Object> keyValues = new HashMap<>();
+            JsonObject baseObject = Icury.getInstance().getGson().fromJson(data, JsonObject.class);
 
-            for (String rawBufferValue : data.split("\\|")) {
-                String[] keyTypeAndValue = rawBufferValue.split(":");
-                String[] keyAndType = keyTypeAndValue[0].split("_");
-                String decryptedValue = new String(parseByteArray(keyTypeAndValue[1]), StandardCharsets.UTF_8);
+            for (Map.Entry<String, JsonElement> elementEntry : baseObject.entrySet()) {
+                JsonPrimitive primitiveValue = elementEntry.getValue().getAsJsonPrimitive();
+                Object value;
 
-                if(keyAndType[1].equals("number")) {
-                    keyValues.put(keyAndType[0], Double.parseDouble(decryptedValue));
-                } else if(keyAndType[1].equals("boolean")) {
-                    keyValues.put(keyAndType[0], Boolean.parseBoolean(decryptedValue));
+                if(primitiveValue.isNumber()) {
+                    value = primitiveValue.getAsNumber();
+                } else if(primitiveValue.isBoolean()) {
+                    value = primitiveValue.getAsBoolean();
                 } else {
-                    keyValues.put(keyAndType[0], decryptedValue);
+                    value = primitiveValue.getAsString();
                 }
+
+                keyValues.put(elementEntry.getKey(), value);
             }
 
             return new MySQLBuffer(keyValues);
-        }
-
-        private static byte[] parseByteArray(String input) {
-            String[] values = input.split(",");
-            byte[] bytes = new byte[values.length];
-
-            for (int i = 0; i < values.length; i++) {
-                bytes[i] = Byte.parseByte(values[i]);
-            }
-
-            return bytes;
-        }
-
-        private static String objectToType(Object value) {
-            if(value instanceof Number) {
-                return "number";
-            } else if(value instanceof Boolean) {
-                return "boolean";
-            } else {
-                return "string";
-            }
         }
     }
 }

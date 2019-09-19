@@ -1,1 +1,11 @@
 # soon
+
+storageType: "MYSQL"
+
+databaseCredentials:
+  hostname: "localhost"
+  port: 3306
+  databaseName: test
+  username: "localtest"
+  password: "password"
+  customUrl: ""

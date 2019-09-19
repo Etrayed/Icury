@@ -1,6 +1,6 @@
 package io.github.etrayed.icury.storage.xml;
 
-import com.sun.xml.internal.fastinfoset.stax.events.*;
+import com.sun.xml.fastinfoset.stax.events.*;
 
 import io.github.etrayed.icury.storage.Storage;
 import io.github.etrayed.icury.storage.StorageType;
@@ -148,7 +148,6 @@ public class XmlStorage implements Storage<XmlBuffer> {
 
                     startElement.addAttribute(new AttributeBase("type", typeByObject(value)));
 
-                    writer.add(startElement);
                     writer.add(new CharactersEvent(value.toString()));
                     writer.add(new EndElementEvent());
                 } catch (XMLStreamException e) {

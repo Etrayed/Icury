@@ -24,14 +24,18 @@ public class Icury {
 
     private static ConfigurationInterpreter configurationInterpreter;
 
-    private final Gson gson;
+    private Gson gson;
 
-    private final Storage storage;
+    private Storage storage;
 
-    Icury() {
+    private Icury() {}
+
+    @SuppressWarnings("unchecked")
+    void init() {
         this.gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
         this.storage = storageByType();
+        this.storage.load();
     }
 
     private Storage storageByType() {
@@ -65,8 +69,8 @@ public class Icury {
         return instance;
     }
 
-    static Icury setInstance(Icury instance) {
-        return Icury.instance = instance;
+    static void setInstance() {
+        (Icury.instance = new Icury()).init();
     }
 
     public static Logger getLogger() {

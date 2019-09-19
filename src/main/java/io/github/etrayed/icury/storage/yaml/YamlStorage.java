@@ -20,7 +20,7 @@ import java.util.function.BiConsumer;
  */
 public class YamlStorage implements Storage<YamlBuffer> {
 
-    private static final Path STORAGE_FILE_PATH = Paths.get("plugins/Icury/storage.xml");
+    private static final Path STORAGE_FILE_PATH = Paths.get("plugins/Icury/storage.yml");
 
     private static final Yaml YAML = new Yaml();
 
