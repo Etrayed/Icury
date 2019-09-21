@@ -18,13 +18,19 @@ import java.nio.file.Paths;
  */
 public class LibraryLoader {
 
-    public static final Dependency[] DEPENDENCIES = {
+    private static final Dependency[] DEPENDENCIES = {
             new Dependency("org.jcodec", "jcodec", "0.2.5"),
             new Dependency("org.jcodec", "jcodec-javase", "0.2.5"),
             new Dependency("org.mongodb", "mongo-java-driver", "3.11.0"),
             new Dependency("com.j256.ormlite", "ormlite-core", "5.1"),
             new Dependency("com.j256.ormlite", "ormlite-jdbc", "5.1"),
-            new Dependency("com.sun.xml.fastinfoset", "FastInfoset", "1.2.16")
+            new Dependency("com.sun.xml.fastinfoset", "FastInfoset", "1.2.16"),
+            new Dependency("com.konghq", "unirest-java", "2.3.17"),
+            new Dependency("org.apache.httpcomponents", "httpasyncclient", "4.1.4"),
+            new Dependency("org.apache.httpcomponents", "httpclient", "4.5.9"),
+            new Dependency("org.apache.httpcomponents", "httpcore", "4.4.11"),
+            new Dependency("org.apache.httpcomponents", "httpcore-nio", "4.4.10"),
+            new Dependency("commons-logging", "commons-logging", "1.2")
     };
 
     private static final Method ADD_URL_METHOD;

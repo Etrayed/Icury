@@ -1,5 +1,7 @@
 # soon
 
+autoUpdate: true
+
 storageType: "MYSQL"
 
 databaseCredentials:

@@ -11,6 +11,7 @@ import io.github.etrayed.icury.storage.xml.XmlStorage;
 import io.github.etrayed.icury.storage.yaml.YamlStorage;
 import io.github.etrayed.icury.util.ConfigurationInterpreter;
 
+import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
@@ -22,6 +23,8 @@ public class Icury {
 
     private static Logger logger;
 
+    private static String version;
+
     private static ConfigurationInterpreter configurationInterpreter;
 
     private Gson gson;
@@ -31,7 +34,7 @@ public class Icury {
     private Icury() {}
 
     @SuppressWarnings("unchecked")
-    void init() {
+    private void init() {
         this.gson = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
 
         this.storage = storageByType();
@@ -54,6 +57,14 @@ public class Icury {
             default:
                 throw new IllegalArgumentException("Invalid storageType: "
                         + Icury.getConfigurationInterpreter().getStorageType());
+        }
+    }
+
+    void shutdown() {
+        try {
+            this.storage.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -87,5 +98,13 @@ public class Icury {
 
     public static ConfigurationInterpreter getConfigurationInterpreter() {
         return configurationInterpreter;
+    }
+
+    public static String getVersion() {
+        return version;
+    }
+
+    static void setVersion(String version) {
+        Icury.version = version;
     }
 }

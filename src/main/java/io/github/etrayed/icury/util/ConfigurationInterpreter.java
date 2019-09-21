@@ -28,6 +28,10 @@ public class ConfigurationInterpreter {
                 credentialsSection.getString("customUrl"), credentialsSection.getInt("port"));
     }
 
+    public boolean isAutoUpdate() {
+        return instance.getBoolean("autoUpdate");
+    }
+
     public static final class DatabaseCredentials {
 
         public final String hostname, databaseName, username, password, customUrl;

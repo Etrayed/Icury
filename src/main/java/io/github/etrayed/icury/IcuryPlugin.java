@@ -5,6 +5,7 @@ import com.j256.ormlite.logger.LoggerFactory;
 
 import io.github.etrayed.icury.util.ConfigurationInterpreter;
 import io.github.etrayed.icury.util.LibraryLoader;
+import io.github.etrayed.icury.util.Updater;
 
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -16,6 +17,8 @@ import java.io.IOException;
  */
 public class IcuryPlugin extends JavaPlugin {
 
+    public final File ownFile = getFile();
+
     @Override
     public void onLoad() {
         this.getDataFolder().mkdir();
@@ -26,10 +29,15 @@ public class IcuryPlugin extends JavaPlugin {
         configOrmliteLog();
 
         Icury.setLogger(this.getLogger());
+        Icury.setVersion(this.getDescription().getVersion());
 
         LibraryLoader.loadAll();
 
         Icury.setConfigurationInterpreter(new ConfigurationInterpreter(this.getConfig()));
+
+        if(Icury.getConfigurationInterpreter().isAutoUpdate()) {
+            Updater.check();
+        }
     }
 
     private void configOrmliteLog() {
@@ -54,6 +62,6 @@ public class IcuryPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-
+        Icury.getInstance().shutdown();
     }
 }
