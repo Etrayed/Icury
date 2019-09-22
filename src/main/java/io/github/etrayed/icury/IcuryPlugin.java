@@ -3,10 +3,12 @@ package io.github.etrayed.icury;
 import com.j256.ormlite.logger.LocalLog;
 import com.j256.ormlite.logger.LoggerFactory;
 
+import io.github.etrayed.icury.command.IcuryCommand;
 import io.github.etrayed.icury.util.ConfigurationInterpreter;
 import io.github.etrayed.icury.util.LibraryLoader;
 import io.github.etrayed.icury.util.Updater;
 
+import org.bukkit.command.PluginCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -17,7 +19,11 @@ import java.io.IOException;
  */
 public class IcuryPlugin extends JavaPlugin {
 
+    static final boolean DEBUG = Boolean.getBoolean("io.github.etrayed.icury.debug");
+
     public final File ownFile = getFile();
+
+    private final IcuryCommand icuryCommand = new IcuryCommand();
 
     @Override
     public void onLoad() {
@@ -58,6 +64,11 @@ public class IcuryPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         Icury.setInstance();
+
+        PluginCommand pluginCommand = this.getCommand("icury");
+
+        pluginCommand.setExecutor(icuryCommand);
+        pluginCommand.setTabCompleter(icuryCommand);
     }
 
     @Override

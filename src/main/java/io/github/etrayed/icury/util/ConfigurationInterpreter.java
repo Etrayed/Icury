@@ -32,6 +32,10 @@ public class ConfigurationInterpreter {
         return instance.getBoolean("autoUpdate");
     }
 
+    public String getNoPermissionMessage(String permission) {
+        return String.format(instance.getString(permission), permission);
+    }
+
     public static final class DatabaseCredentials {
 
         public final String hostname, databaseName, username, password, customUrl;

@@ -1,5 +1,8 @@
 # soon
 
+# %s to get permission
+noPermissionMessage: "§cSorry, not today! Missing permission: %s"
+
 autoUpdate: true
 
 storageType: "MYSQL"

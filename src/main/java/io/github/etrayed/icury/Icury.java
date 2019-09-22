@@ -107,4 +107,10 @@ public class Icury {
     static void setVersion(String version) {
         Icury.version = version;
     }
+
+    public static void debug(String message) {
+        if(IcuryPlugin.DEBUG) {
+            logger.info("[DEBUG] " + message);
+        }
+    }
 }

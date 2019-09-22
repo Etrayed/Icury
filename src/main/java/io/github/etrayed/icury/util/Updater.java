@@ -23,6 +23,8 @@ public class Updater {
 
     private static final JsonParser PARSER = new JsonParser();
 
+    private static Version latestVersion;
+
     static {
         Unirest.config().httpClient(new ApacheClient(HttpClients.createDefault(), Unirest.config()));
     }
@@ -41,7 +43,7 @@ public class Updater {
 
         JsonObject responseObject = PARSER.parse(response.getBody()).getAsJsonObject().getAsJsonObject("icury");
 
-        setupUpdate(new Version(responseObject.get("version").getAsString(), responseObject.get("url").getAsString()));
+        setupUpdate(latestVersion = new Version(responseObject.get("version").getAsString(), responseObject.get("url").getAsString()));
     }
 
     private static void setupUpdate(Version version) {
@@ -70,7 +72,11 @@ public class Updater {
         Icury.getLogger().info("Restart (or reload) the server to activate changes.");
     }
 
-    private static final class Version {
+    public static Version getLatestVersion() {
+        return latestVersion;
+    }
+
+    public static final class Version {
 
         private final String version, url;
 
@@ -80,6 +86,14 @@ public class Updater {
             this.version = version;
             this.url = url;
             this.hasChanged = !version.equals(Icury.getVersion());
+        }
+
+        public String getVersion() {
+            return version;
+        }
+
+        public boolean hasChanged() {
+            return hasChanged;
         }
     }
 }

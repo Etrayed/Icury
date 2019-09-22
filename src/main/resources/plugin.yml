@@ -2,3 +2,8 @@ name: Icury
 version: INDEV
 main: io.github.etrayed.icury.IcuryPlugin
 author: Etrayed
+website: https://github.com/Etrayed/Icury
+description: Stream videos in Minecraft
+commands:
+  icury:
+    description: The main command to manage Icury
